@@ -66,7 +66,7 @@ def create_ticket_under_project(
 ):
     project = get_project_by_id(db, id, current_user.organization)
     result = create_ticket(db, ticket, project).to_model()
-    result.parent_id = get_ticket_parent_id(db, ticket, project)
+    result.parent_id = get_ticket_parent_id(db, result, project)
     return result
 
 
