@@ -104,10 +104,16 @@ def get_account_from_auth_token(db: Session, token: str):
     try:
         payload = jwt.decode(token, TASQUE_SECRET_KEY, algorithms=["HS256"])
         username = payload.get("username")
+        expires = payload.get("expires")
+        if datetime.utcnow().timestamp() > expires:
+            raise HTTPException(status_code=401, detail="Token expired.")
         return get_account_by_username(db, username)
     except JWTError:
         logger.debug(f"Could not validate credentials.", exc_info=True)
-        raise HTTPException(status_code=401, detail="Could not validate credentials.")
+        raise HTTPException(
+            status_code=401,
+            detail="Could not validate credentials (is token expired?).",
+        )
 
 
 def get_account_by_email(db: Session, email: str):
