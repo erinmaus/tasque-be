@@ -1,6 +1,7 @@
 from tasque.model.project_ticket_query import ProjectTicketQuery
 from tasque.controller.ticket import (
     create_ticket,
+    delete_ticket,
     get_ticket_by_id,
     get_ticket_parent_id,
     map_ticket_model_parents,
@@ -91,6 +92,25 @@ def update_ticket_under_project(
     project = get_project_by_id(db, project_id, current_user.organization)
     result = update_ticket(db, ticket_id, ticket, project).to_model()
     result.parent_id = get_ticket_parent_id(db, result, project)
+    return result
+
+
+@router.delete("/{project_id}/ticket/{ticket_id}", response_model=TicketModel)
+def delete_ticket_under_project(
+    project_id: int,
+    ticket_id: int,
+    ticket: UpdateTicketModel,
+    db: Session = Depends(get_db),
+    current_user: AccountEntity = Depends(get_current_account),
+):
+    project = get_project_by_id(db, project_id, current_user.organization)
+
+    ticket = get_ticket_by_id(db, ticket_id, project)
+    result = ticket.to_model()
+    result.parent_id = get_ticket_parent_id(db, result, project)
+
+    delete_ticket(db, ticket_id, project)
+
     return result
 
 

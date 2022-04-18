@@ -103,9 +103,25 @@ def update_ticket(
 
     current_parent_id = get_ticket_parent_id(db, current_ticket, project)
     if ticket.parent_id and ticket.parent_id != current_parent_id:
-        logger.debug(f"Updating ticket {ticket_id} parent to {ticket.parent_id} (previously: {current_parent_id})")
+        logger.debug(
+            f"Updating ticket {ticket_id} parent to {ticket.parent_id} (previously: {current_parent_id})"
+        )
         db.add(TicketToTicketEntity(parent_id=ticket.parent_id, child_id=ticket_id))
 
     db.commit()
 
     return current_ticket
+
+
+def delete_ticket(db: Session, ticket_id: int, project: ProjectEntity):
+    current_ticket = get_ticket_by_id(db, ticket_id, project)
+
+    db.query(TicketToTicketEntity).filter(
+        TicketToTicketEntity.parent_id == ticket_id
+    ).delete()
+    db.query(TicketToTicketEntity).filter(
+        TicketToTicketEntity.child_id == ticket_id
+    ).delete()
+    db.delete(current_ticket)
+    db.delete(current_ticket.content)
+    db.commit()
