@@ -101,10 +101,9 @@ def update_ticket(
 
     db.add(current_ticket)
 
-    db.query(TicketToTicketEntity).filter(
-        TicketToTicketEntity.child_id == ticket_id
-    ).delete()
-    if ticket.parent_id:
+    current_parent_id = get_ticket_parent_id(db, current_ticket, project)
+    if ticket.parent_id and ticket.parent_id != current_parent_id:
+        logger.debug(f"Updating ticket {ticket_id} parent to {ticket.parent_id} (previously: {current_parent_id})")
         db.add(TicketToTicketEntity(parent_id=ticket.parent_id, child_id=ticket_id))
 
     db.commit()
