@@ -20,3 +20,7 @@ class ProjectModel(BaseModel):
     id: int
     title: str
     organization_id: int
+
+
+class CreateProjectModel(BaseModel):
+    title: str

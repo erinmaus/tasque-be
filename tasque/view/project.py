@@ -8,13 +8,14 @@ from tasque.controller.ticket import (
 )
 from tasque.model.ticket import CreateTicketModel, TicketModel, UpdateTicketModel
 from typing import List
-from tasque.model.project import ProjectModel
+from tasque.model.project import CreateProjectModel, ProjectModel
 from tasque.model import get_db
 from tasque.model.account import AccountEntity
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from .authentication import get_current_account
 from ..controller.project import (
+    create_project,
     get_all_tickets_under_project,
     get_project_by_id,
     get_projects_under_org,
@@ -29,6 +30,15 @@ def index(
     current_user: AccountEntity = Depends(get_current_account),
 ):
     return [p.to_model() for p in get_projects_under_org(db, current_user.organization)]
+
+
+@router.post("/", response_model=ProjectModel)
+def create(
+    project: CreateProjectModel,
+    db: Session = Depends(get_db),
+    current_user: AccountEntity = Depends(get_current_account),
+):
+    return create_project(db, project, current_user.organization).to_model()
 
 
 @router.get("/{id}", response_model=ProjectModel)

@@ -7,7 +7,7 @@ from tasque.logging import get_logger
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from ..model.organization import OrganizationEntity
-from ..model.project import ProjectEntity
+from ..model.project import CreateProjectModel, ProjectEntity
 from ..model.ticket import TicketEntity
 
 logger = get_logger(__name__)
@@ -38,6 +38,16 @@ def get_project_by_id(db: Session, project_id: int, organization: OrganizationEn
     return project
 
 
+def create_project(
+    db: Session, project: CreateProjectModel, organization: OrganizationEntity
+):
+    result = ProjectEntity(title=project.title, organization_id=organization.id)
+    db.add(result)
+    db.commit()
+
+    return result
+
+
 def get_all_tickets_under_project(
     db: Session,
     project_id: int,
@@ -51,6 +61,7 @@ def get_all_tickets_under_project(
             TicketEntity.project_id == project_id,
             ProjectEntity.organization_id == organization.id,
         )
+        .order_by(TicketEntity.id)
     )
 
     if (
