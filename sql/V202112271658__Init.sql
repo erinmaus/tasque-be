@@ -73,8 +73,8 @@ CREATE TABLE tsq_ticket (
 );
 
 CREATE TABLE tsq_ticket_parent (
-  parent_id INT REFERENCES tsq_content(id) NOT NULL,
-  child_id INT REFERENCES tsq_content(id) NOT NULL,
+  parent_id INT REFERENCES tsq_ticket(id) NOT NULL,
+  child_id INT REFERENCES tsq_ticket(id) NOT NULL,
 
   PRIMARY KEY(parent_id, child_id),
   UNIQUE(parent_id, child_id)
