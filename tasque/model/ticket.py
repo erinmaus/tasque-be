@@ -1,6 +1,6 @@
-from typing import List, Optional
-from tasque.model.ticket_to_ticket import TicketToTicketEntity
-from sqlalchemy import Column, ForeignKey, Integer, Text
+from datetime import date
+from typing import Optional
+from sqlalchemy import Column, ForeignKey, Integer, Date, func
 from sqlalchemy.orm import relationship
 from .impl.database import Base
 from .content import ContentModel
@@ -15,6 +15,7 @@ class TicketEntity(Base):
     label_id = Column(Integer, ForeignKey("tsq_ticket_label.id"))
     project_id = Column(Integer, ForeignKey("tsq_project.id"))
     points = Column(Integer, nullable=False)
+    status_update = Column(Date, server_default=func.sysdate())
 
     content = relationship("ContentEntity")
     status = relationship("StatusEntity")
@@ -30,6 +31,7 @@ class TicketEntity(Base):
             label_id=self.label_id,
             project_id=self.project_id,
             points=self.points,
+            status_update=self.status_update,
         )
 
 
@@ -40,6 +42,7 @@ class TicketModel(ContentModel):
     project_id: int
     points: int
     parent_id: Optional[int]
+    status_update: date
 
 
 class CreateTicketModel(ContentModel):

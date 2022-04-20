@@ -1,3 +1,4 @@
+from datetime import date
 from typing import List
 from fastapi import HTTPException
 from tasque.logging import get_logger
@@ -94,7 +95,11 @@ def update_ticket(
     db.add(current_ticket.content)
 
     current_ticket.label_id = ticket.label_id or current_ticket.label_id
+
+    current_ticket_status_id = current_ticket.status_id
     current_ticket.status_id = ticket.status_id or current_ticket.status_id
+    if current_ticket_status_id != current_ticket.status_id:
+        current_ticket.status_update = date.today()
 
     if not ticket.points is None:
         current_ticket.points = ticket.points
